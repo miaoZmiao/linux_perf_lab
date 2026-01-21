@@ -1,0 +1,283 @@
+
+=========
+
+查看 高 cpu 用户态
+
+1 top 观察 load average
+2 pidstat -u 1
+按名字过滤： pidstat -u -C "cpu_high_user" 1 （这会只显示匹配该字符串的进程）。
+按 PID 指定： pidstat -u -p $(pgrep cpu_high_user) 1 
+只看高消耗： pidstat -u 1 | grep -E "%usr|cpu_high_user"（利用 grep 只看标题和你关心的行）。
+
+3 sudo perf top
+sudo perf top -p $(pgrep cpu_high_user)  # 实时 类似 top 虚拟机无法用
+sudo perf top -e cpu-clock -p $(pgrep cpu_high_user)  # 实时 类似 top
+sudo perf record -g -p $(pgrep cpu_high_user) -- sleep 5   # 采样5秒
+sudo perf record -e cpu-clock -g -p $(pgrep cpu_high_user) -- sleep 5 # 采样5秒
+sudo perf report                          # 查看采样
+
+4 top 例子
+top
+
+ 进程号 USER      PR  NI    VIRT    RES    SHR    %CPU  %MEM     TIME+ COMMAND                  
+  69942 zhaomin+  20   0  137508   3696   3360 S  1518   0.0   7:46.06 cpu_high_user            
+   2270 zhaomin+  20   0  415812 126460  76256 S  36.6   0.8   1:20.86 Xorg                     
+   2480 zhaomin+  20   0 4206808 294560 132008 S  27.4   1.8   1:41.27 gnome-shell    
+
+任务: 494 total,   1 running, 493 sleeping,   0 stopped,   0 zombie
+%Cpu0  : 97.2 us,  2.8 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu1  : 95.5 us,  4.5 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu2  : 88.1 us, 11.9 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu3  : 88.5 us, 11.5 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu4  : 95.3 us,  4.1 sy,  0.0 ni,  0.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu5  : 96.5 us,  3.5 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu6  : 81.9 us, 17.6 sy,  0.0 ni,  0.5 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu7  : 98.8 us,  1.2 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu8  : 86.4 us, 13.6 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu9  : 91.8 us,  8.2 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu10 : 99.4 us,  0.6 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu11 : 63.5 us, 34.9 sy,  0.0 ni,  1.6 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu12 :100.0 us,  0.0 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu13 : 98.8 us,  1.2 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu14 : 93.6 us,  6.4 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu15 : 92.6 us,  6.9 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.0 hi,  0.6 si,  0.0 st 
+MiB Mem :  15946.6 total,   1571.5 free,   7735.5 used,   7068.8 buff/cache     
+MiB Swap:   4096.0 total,   4096.0 free,      0.0 used.   8211.0 avail Mem 
+
+5 pidstat 例子
+pidstat -u -p $(pgrep cpu_high_user) 1 
+Linux 6.14.0-37-generic (helloworld) 	2026年01月21日 	_x86_64_	(16 CPU)
+
+21时25分52秒   UID       PID    %usr %system  %guest   %wait    %CPU   CPU  Command
+21时25分53秒  1000     70556 1569.00   15.00    0.00    0.00 1584.00    13  cpu_high_user
+21时25分54秒  1000     70556 1555.00   26.00    0.00    0.00 1581.00    13  cpu_high_user
+21时25分55秒  1000     70556 1557.43   11.88    0.00    0.00 1569.31    13  cpu_high_user
+21时25分56秒  1000     70556 1588.00   10.00    0.00    0.00 1598.00    13  cpu_high_user
+21时25分57秒  1000     70556 1474.00   45.00    0.00    0.00 1519.00    13  cpu_high_user
+21时25分58秒  1000     70556 1280.00  116.00    0.00    0.00 1396.00    13  cpu_high_user
+
+6 例子
+perf record 
+
+Samples: 65K of event 'cpu-clock', Event count (approx.): 16366250000
+  Children      Self  Command        Shared Object        Symbol
++  100.00%     0.00%  cpu_high_user  libc.so.6            [.] clone3                           ◆
++  100.00%     0.00%  cpu_high_user  libc.so.6            [.] start_thread                     ▒
++  100.00%     0.00%  cpu_high_user  libstdc++.so.6.0.33  [.] 0x00007123eaaecdb4               ▒
++  100.00%     0.00%  cpu_high_user  cpu_high_user        [.] std::thread::_State_impl<std::thr▒
++  100.00%     0.00%  cpu_high_user  cpu_high_user        [.] std::thread::_Invoker<std::tuple<▒
++  100.00%     0.00%  cpu_high_user  cpu_high_user        [.] void std::thread::_Invoker<std::t▒
++  100.00%     0.00%  cpu_high_user  cpu_high_user        [.] std::__invoke_result<void (*)()>:▒
++  100.00%     0.00%  cpu_high_user  cpu_high_user        [.] void std::__invoke_impl<void, voi▒
++  100.00%    98.54%  cpu_high_user  cpu_high_user        [.] high_user_task()     
+
+6.1. 交互式操作（你可以现在试试）
+perf report 是可以交互的，请尝试以下操作：
+
+展开调用栈： 用上下键移动到有 + 号的行，按 Enter。你会看到层层嵌套的调用关系，像剥洋葱一样看到这个线程是怎么启动的。
+查看汇编代码： 选中 high_user_task()，按 'a' 键 (Annotate)
+退出: ESC
+Symbol： 函数名。
+
+[.] 代表用户态 (User space)。
+
+[k] 代表内核态 (Kernel space)。
+
+=========
+
+高内核态 cpu
+
+1 top
+任务: 492 total,   1 running, 491 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  0.7 us, 96.2 sy,  0.0 ni,  3.0 id,  0.0 wa,  0.0 hi,  0.1 si,  0.0 st 
+MiB Mem :  15946.6 total,   1388.0 free,   7886.9 used,   7110.0 buff/cache     
+MiB Swap:   4096.0 total,   4096.0 free,      0.0 used.   8059.7 avail Mem 
+
+ 进程号 USER      PR  NI    VIRT    RES    SHR    %CPU  %MEM     TIME+ COMMAND                  
+  71881 zhaomin+  20   0  137508   3660   3328 S  1513   0.0   3:16.43 cpu_high_sys      
+
+zhaominjie@helloworld:~/projects/course_code$ top
+
+top - 21:56:26 up  7:26,  1 user,  load average: 7.54, 2.58, 2.14
+任务: 492 total,   1 running, 491 sleeping,   0 stopped,   0 zombie
+%Cpu0  :  1.4 us, 98.6 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu1  :  0.0 us, 98.6 sy,  0.0 ni,  1.4 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu2  :  1.5 us, 97.1 sy,  0.0 ni,  1.5 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu3  :  1.5 us, 95.6 sy,  0.0 ni,  2.9 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu4  :  1.4 us, 95.7 sy,  0.0 ni,  1.4 id,  0.0 wa,  0.0 hi,  1.4 si,  0.0 st 
+%Cpu5  :  1.5 us, 98.5 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu6  :  1.5 us, 91.2 sy,  0.0 ni,  7.4 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu7  :  0.0 us, 98.6 sy,  0.0 ni,  1.4 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu8  :  0.0 us, 98.5 sy,  0.0 ni,  1.5 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu9  :  0.0 us,100.0 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu10 :  1.5 us, 98.5 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu11 :  1.4 us, 91.3 sy,  0.0 ni,  7.2 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu12 :  0.0 us, 98.5 sy,  0.0 ni,  1.5 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu13 :  0.0 us, 98.6 sy,  0.0 ni,  1.4 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu14 :  1.4 us, 97.1 sy,  0.0 ni,  1.4 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+%Cpu15 :  0.0 us,100.0 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+MiB Mem :  15946.6 total,   1373.9 free,   7900.9 used,   7120.5 buff/cache     
+MiB Swap:   4096.0 total,   4096.0 free,      0.0 used.   8045.7 avail Mem 
+
+2 pidstat
+ 
+pidstat -u -p $(pgrep cpu_high_sys) 1
+zhaominjie@helloworld:~/projects/course_code$ pidstat -u -p $(pgrep cpu_high_sys) 1
+Linux 6.14.0-37-generic (helloworld) 	2026年01月21日 	_x86_64_	(16 CPU)
+
+21时59分08秒   UID       PID    %usr %system  %guest   %wait    %CPU   CPU  Command
+21时59分09秒  1000     72015   13.00 1563.00    0.00    0.00 1576.00     1  cpu_high_sys
+21时59分10秒  1000     72015    9.00 1559.00    0.00    0.00 1568.00     1  cpu_high_sys
+21时59分11秒  1000     72015   15.00 1549.00    0.00    0.00 1564.00     1  cpu_high_sys
+21时59分12秒  1000     72015   13.00 1559.00    0.00    0.00 1572.00     1  cpu_high_sys
+21时59分13秒  1000     72015   12.00 1446.00    0.00    0.00 1458.00     1  cpu_high_sys
+21时59分14秒  1000     72015    8.00 1159.00    0.00    0.00 1167.00     1  cpu_high_sys
+21时59分15秒  1000     72015   12.00 1450.00    0.00    0.00 1462.00     1  cpu_high_sys
+^C
+平均时间:  1000     72015   11.71 1469.29    0.00    0.00 1481.00     -  cpu_high_sys
+
+3 perf
+sudo perf top -e cpu-clock -p $(pgrep cpu_high_sys) 
+
+  95.50%  [kernel]      [k] osq_lock
+   1.55%  [kernel]      [k] _raw_spin_unlock_irqrestore
+   0.37%  libc.so.6     [.] read
+   0.35%  [kernel]      [k] mutex_spin_on_owner
+   0.27%  [kernel]      [k] do_syscall_64
+   0.22%  [kernel]      [k] tty_read
+
+sudo perf record -e cpu-clock -g -p $(pgrep cpu_high_sys) -- sleep 5
+
+Samples: 225K of event 'cpu-clock', Event count (approx.): 56358750000
+  Children      Self  Command       Shared Object        Symbol
++  100.00%     0.00%  cpu_high_sys  libc.so.6            [.] clone3
++  100.00%     0.00%  cpu_high_sys  libc.so.6            [.] start_thread
++  100.00%     0.00%  cpu_high_sys  libstdc++.so.6.0.33  [.] 0x00007b2a6a2ecdb4
++  100.00%     0.00%  cpu_high_sys  cpu_high_sys         [.] std::thread::_State_impl<std::threa
++  100.00%     0.00%  cpu_high_sys  cpu_high_sys         [.] std::thread::_Invoker<std::tuple<vo
++  100.00%     0.00%  cpu_high_sys  cpu_high_sys         [.] void std::thread::_Invoker<std::tup
++  100.00%     0.00%  cpu_high_sys  cpu_high_sys         [.] std::__invoke_result<void (*)()>::t
++  100.00%     0.00%  cpu_high_sys  cpu_high_sys         [.] void std::__invoke_impl<void, void
++   99.99%     0.01%  cpu_high_sys  cpu_high_sys         [.] high_sys_task()
++   99.83%     0.39%  cpu_high_sys  libc.so.6            [.] read
++   99.43%     0.00%  cpu_high_sys  [kernel.kallsyms]    [k] entry_SYSCALL_64_after_hwframe
++   99.43%     0.31%  cpu_high_sys  [kernel.kallsyms]    [k] do_syscall_64
++   99.09%     0.02%  cpu_high_sys  [kernel.kallsyms]    [k] x64_sys_call
++   99.07%     0.01%  cpu_high_sys  [kernel.kallsyms]    [k] __x64_sys_read
++   99.05%     0.04%  cpu_high_sys  [kernel.kallsyms]    [k] ksys_read
++   98.78%     0.18%  cpu_high_sys  [kernel.kallsyms]    [k] vfs_read
++   98.43%     0.25%  cpu_high_sys  [kernel.kallsyms]    [k] tty_read
++   97.99%     0.14%  cpu_high_sys  [kernel.kallsyms]    [k] n_tty_read
++   96.61%     0.08%  cpu_high_sys  [kernel.kallsyms]    [k] mutex_lock_interruptible
++   96.54%     0.00%  cpu_high_sys  [kernel.kallsyms]    [k] __mutex_lock_interruptible_slowpath
++   96.53%     0.06%  cpu_high_sys  [kernel.kallsyms]    [k] __mutex_lock.constprop.0
++   96.12%    96.10%  cpu_high_sys  [kernel.kallsyms]    [k] osq_lock
++    1.00%     1.00%  cpu_high_sys  [kernel.kallsyms]    [k] _raw_spin_unlock_irqrestore
++    0.73%     0.06%  cpu_high_sys  [kernel.kallsyms]    [k] mutex_unlock
++    0.66%     0.02%  cpu_high_sys  [kernel.kallsyms]    [k] __mutex_unlock_slowpath.isra.0
+
+=========
+
+
+高 内存上下文切换 CPU
+
+0 top -H -p $(pgrep cpu_context_s)
+
+1 vmstat 1：重点看 cs (Context Switch) 和 r (Running Queue)
+预期： cs 会从几百上升到数万甚至数十万
+
+2 # -w 查看上下文切换，-t 查看线程级数据
+pidstat -wt -p $(pgrep cpu_context_s) 1
+
+
+# 过滤标题行并累加 cswch/s (第4列) 和 nvcswch/s (第5列)
+pidstat -wt -p $(pgrep cpu_context_s) 1 | awk '
+    /^[0-9]/ && $3 != "PID" { 
+        cswch += $4; 
+        nvcswch += $5; 
+        count++ 
+    } 
+    END { 
+        if (count > 0) 
+            printf "\n汇总数据 (共 %d 个线程):\n自愿切换(cswch/s): %.2f\n非自愿切换(nvcswch/s): %.2f\n", count, cswch, nvcswch 
+    }'
+
+cswch/s：每秒自愿上下文切换（线程因为等待锁或 sleep 主动让出）。
+
+nvcswch/s：每秒非自愿上下文切换（线程时间片用完，被内核强制踢下 CPU）。
+
+3 perf stat -p $(pgrep cpu_context_s) sleep 5
+sudo perf stat -e context-switches -p $(pgrep cpu_context_s) sleep 5
+sudo perf report
+
+这个命令会给出一个汇总报告，直接显示 context-switches 的总数。
+
+
+0 top -H -p $(pgrep cpu_context_s)
+Threads: 501 total,  14 running, 487 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  0.1 us,  8.7 sy,  0.0 ni, 91.2 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+MiB Mem :  15946.6 total,   1252.5 free,   7943.6 used,   7188.5 buff/cache     
+MiB Swap:   4096.0 total,   4096.0 free,      0.0 used.   8003.0 avail Mem 
+
+ 进程号 USER      PR  NI    VIRT    RES    SHR    %CPU  %MEM     TIME+ COMMAND                  
+  81552 zhaomin+  20   0 4104504   7772   3392 S   0.7   0.0   0:00.20 cpu_context_swi          
+  81555 zhaomin+  20   0 4104504   7772   3392 S   0.7   0.0   0:00.19 cpu_context_swi          
+  81556 zhaomin+  20   0 4104504   7772   3392 S   0.7   0.0   0:00.23 cpu_context_swi          
+  81558 zhaomin+  20   0 4104504   7772   3392 S   0.7   0.0   0:00.19 cpu_context_swi          
+  81559 zhaomin+  20   0 4104504   7772   3392 S   0.7   0.0   0:00.19 cpu_context_swi          
+  81560 zhaomin+  20   0 4104504   7772   3392 S   0.7   0.0   0:00.19 cpu_context_swi          
+  81561 zhaomin+  20   0 4104504   7772   3392 S   0.7   0.0   0:00.19 cpu_context_swi          
+  81562 zhaomin+  20   0 4104504   7772   3392 S   0.7   0.0   0:00.19 cpu_context_swi          
+  81563 zhaomin+  20   0 4104504   7772   3392 R   0.7   0.0   0:00.19 cpu_context_swi          
+  81564 zhaomin+  20   0 4104504   7772   3392 S   0.7   0.0   0:00.19 cpu_context_swi     
+
+
+1 vmstat 结果对比
+
+ 2  0      0 1285148 538184 6811284    0    0     0     0 65584 392871  0  9 91  0  0  0
+ 4  0      0 1285148 538184 6811284    0    0     0     0 64994 387328  0  9 91  0  0  0
+ 2  0      0 1285148 538184 6811284    0    0     0     0 66493 391165  0  9 91  0  0  0
+ 5  0      0 1278824 538184 6815028    0    0     0     0 67587 426458  1 10 89  0  0  0
+ 8  0      0 1290724 538184 6815540    0    0     0     0 63993 446606  4 13 82  0  0  0
+ 0  0      0 1285620 538212 6816036    0    0     0   188 12108 39888  3  6 92  0  0  0
+ 0  0      0 1285512 538216 6816036    0    0     0    72 2799 3461  0  1 99  0  0  0
+ 0  0      0 1286992 538216 6816036    0    0     0     0  593  491  0  0 100  0  0  0
+ 0  0      0 1288272 538216 6816036    0    0     0     0  413  430  0  0 100  0  0  0
+ 0  0      0 1288424 538216 6815844    0    0     0     0  483  465  0  0 100  0  0  0
+ 0  0      0 1290672 538216 6813652    0    0     0     0  805  576  0  0 100  0  0  0
+ 0  0      0 1293800 538220 6811616    0    0     0    68  747  520  0  0 100  0  0  0
+
+2 pidstat 结果
+pidstat -u -p $(pgrep cpu_context_s) 1
+22时28分18秒   UID       PID    %usr %system  %guest   %wait    %CPU   CPU  Command
+22时28分19秒  1000     74660    1.00  229.00    0.00    0.00  230.00    11  cpu_context_swi
+22时28分20秒  1000     74660    2.00  206.00    0.00    0.00  208.00    11  cpu_context_swi
+22时28分21秒  1000     74660    2.00  227.00    0.00    0.00  229.00    11  cpu_context_swi
+22时28分22秒  1000     74660    1.00  208.00    0.00    0.00  209.00    11  cpu_context_swi
+22时28分23秒  1000     74660    1.00  221.00    0.00    0.00  222.00    11  cpu_context_swi
+
+pidstat -w -p $(pgrep cpu_context_s) 1
+Linux 6.14.0-37-generic (helloworld) 	2026年01月21日 	_x86_64_	(16 CPU)
+
+22时35分22秒   UID       PID   cswch/s nvcswch/s  Command
+22时35分23秒  1000     76462      0.00      0.00  cpu_context_swi
+22时35分24秒  1000     76462      0.00      0.00  cpu_context_swi
+22时35分25秒  1000     76462      0.00      0.00  cpu_context_swi
+
+pidstat -wt -p $(pgrep cpu_context_s) 1
+结果很难看
+
+3 perf stat
+zhaominjie@helloworld:~/projects/course_code$ sudo perf stat -e context-switches -p $(pgrep cpu_context_s) sleep 5
+
+ Performance counter stats for process id '75881':
+
+         1,389,773      context-switches                                                      
+
+       5.045173742 seconds time elapsed
+
+zhaominjie@helloworld:~/projects/course_code$ 
+
+
+=============
+
