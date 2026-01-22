@@ -241,6 +241,8 @@ MiB Swap:   4096.0 total,   4096.0 free,      0.0 used.   8003.0 avail Mem
 
 1 vmstat 结果对比
 
+procs -----------memory---------- ---swap-- -----io---- -system-- -------cpu-------
+ r  b     交换 空闲 缓冲 缓存             si   so    bi    bo   in   cs   us sy id wa st gu
  2  0      0 1285148 538184 6811284    0    0     0     0 65584 392871  0  9 91  0  0  0
  4  0      0 1285148 538184 6811284    0    0     0     0 64994 387328  0  9 91  0  0  0
  2  0      0 1285148 538184 6811284    0    0     0     0 66493 391165  0  9 91  0  0  0
@@ -287,4 +289,17 @@ zhaominjie@helloworld:~/projects/course_code$
 
 
 =============
+
+使用 ebpf 查看性能
+
+1 运行任意 一个 二进制
+  cpu_high_sys  cpu_high_user cpu_context_switch
+2 另外开一个shell
+  执行 profile_high_cpu.sh
+3 完毕后推出 cpu_* 进程
+  看 cpu_profile.txt 结果
+4 然后我就把这个过程封装成一键脚本
+  cpu_ebpf_test.sh
+=============
+
 
