@@ -1,0 +1,54 @@
+============
+
+# -n DEV 表示查看网络设备统计，1 表示每秒输出一次
+sar -n DEV 1
+
+# 给本地回环网卡增加 300ms 的延迟
+sudo tc qdisc add dev lo root netem delay 300ms
+
+sudo tc qdisc change dev lo root netem delay 300ms loss 10%
+sudo tc qdisc del dev lo root 2>/dev/null
+sudo tc qdisc add dev lo root netem delay 300ms loss 10%
+
+ping 127.0.0.1 -c 4
+
+sudo tc qdisc del dev lo root
+
+============
+
+# 启动一个临时的 Python Web 服务
+python3 -m http.server 8080 &
+SERVER_PID=$!
+
+# 用 time 看看下载一个文件的耗时
+time curl http://127.0.0.1:8080 > /dev/null
+
+kill $SERVER_PID
+
+
+============
+
+sar -n DEV 1
+
+指标,全称,通俗解释
+IFACE,Interface,网卡名称。lo 是本地回环，ens33 是你的物理/虚拟网卡。
+rxpck/s,receive packets per second,每秒收包数。单位是“个”。（收到了多少封信）
+txpck/s,transmit packets per second,每秒发包数。单位是“个”。（发出了多少封信）
+rxkB/s,receive kilobytes per second,每秒接收量。单位是 KB。（收到的信总共多重）
+txkB/s,transmit kilobytes per second,每秒发送量。单位 is KB。（发出的信总共多重）
+rxcmp/s,receive compressed packets,每秒接收的压缩包数。现代系统通常为 0。
+txcmp/s,transmit compressed packets,每秒发送的压缩包数。通常为 0。
+rxmcst/s,receive multicast packets,每秒接收的多播包数。通常是网络内的一些广播发现协议。
+%ifutil,interface utilization,网卡带宽利用率。这是最关键的占比指标。
+
+============
+
+UDP Flood
+
+============
+
+
+
+
+
+
