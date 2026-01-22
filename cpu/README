@@ -19,10 +19,17 @@ sudo perf report                          # 查看采样
 4 top 例子
 top
 
+zhaominjie@helloworld:~/projects/course_code$ top
+
+top - 23:22:06 up  8:52,  1 user,  load average: 11.26, 3.46, 1.49
+任务: 486 total,   1 running, 485 sleeping,   0 stopped,   0 zombie
+%Cpu(s): 83.1 us, 15.7 sy,  0.0 ni,  1.0 id,  0.0 wa,  0.0 hi,  0.2 si,  0.0 st 
+MiB Mem :  15946.6 total,   1236.5 free,   7954.6 used,   7198.0 buff/cache     
+MiB Swap:   4096.0 total,   4096.0 free,      0.0 used.   7992.0 avail Mem 
+
  进程号 USER      PR  NI    VIRT    RES    SHR    %CPU  %MEM     TIME+ COMMAND                  
-  69942 zhaomin+  20   0  137508   3696   3360 S  1518   0.0   7:46.06 cpu_high_user            
-   2270 zhaomin+  20   0  415812 126460  76256 S  36.6   0.8   1:20.86 Xorg                     
-   2480 zhaomin+  20   0 4206808 294560 132008 S  27.4   1.8   1:41.27 gnome-shell    
+  82757 zhaomin+  20   0  137508   3660   3324 S  1416   0.0  17:21.63 cpu_high_user            
+   5402 zhaomin+  20   0   33.0g 239164 187564 S  93.7   1.5  21:42.22 code   
 
 任务: 494 total,   1 running, 493 sleeping,   0 stopped,   0 zombie
 %Cpu0  : 97.2 us,  2.8 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
