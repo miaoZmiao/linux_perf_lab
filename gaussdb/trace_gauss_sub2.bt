@@ -1,0 +1,35 @@
+// trace_gauss_cycles_final.bt
+
+// 逻辑说明：
+// uprobe/uretprobe 本身就是为了追踪函数耗时设计的。
+// 在 bpftrace 中，如果我们想要“周期”感，
+// 最稳定的跨版本方式是测量两个点之间的差值。
+
+uprobe:../build/gaussdb/gaussdb:_Z24heavy_matrix_computationv {
+    // 记录进入时的纳秒，这是目前 BPF 这种环境下最准的“时钟滴答”
+    @start_time[tid] = nsecs;
+}
+
+uretprobe:../build/gaussdb/gaussdb:_Z24heavy_matrix_computationv /@start_time[tid]/ {
+    $delta_ns = nsecs - @start_time[tid];
+    
+    // 手动执行频率换算：2.7GHz 意味着 1ns = 2.7 cycles
+    // bpftrace 只支持整数，我们先乘 27 再除以 10
+    $est_cycles = ($delta_ns * 27) / 10;
+
+    @avg_cycles = avg($est_cycles);
+    // @max_cycles = max($est_cycles);
+    @dist_cycles = hist($est_cycles);
+    
+    delete(@start_time[tid]);
+}
+
+interval:s:5 {
+    time("%H:%M:%S: ");
+    printf("Sub-process Estimated Cycles (at 2.7GHz):\n");
+    print(@avg_cycles);
+    print(@dist_cycles);
+    // 关键：清空数据，这样下次打印的就是这5秒内的新数据
+    clear(@avg_cycles);
+    clear(@dist_cycles);
+}

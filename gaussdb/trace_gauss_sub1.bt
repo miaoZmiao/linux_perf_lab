@@ -1,0 +1,30 @@
+// trace_gauss_sub.bt 兼容版
+
+uprobe:../build/gaussdb/gaussdb:_Z24heavy_matrix_computationv {
+    @start_ns[tid] = nsecs;
+}
+
+uretprobe:../build/gaussdb/gaussdb:_Z24heavy_matrix_computationv /@start_ns[tid]/ {
+    $delta = nsecs - @start_ns[tid];
+    
+    @avg_ns = avg($delta);
+    @max_ns = max($delta);
+    @count = count();
+    @dist_ns = hist($delta);
+    
+    delete(@start_ns[tid]);
+}
+
+// 每 5 秒输出一次统计
+interval:s:5 {
+    time("%H:%M:%S: ");
+    printf("--- Sub-process Latency Stats ---\n");
+    // 使用 print 打印所有 map，即使它们为空也不会报错
+    print(@avg_ns);
+    print(@count);
+    print(@dist_ns);
+}
+
+END {
+    clear(@start_ns);
+}

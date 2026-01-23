@@ -244,6 +244,22 @@ void signal_waiter_thread(ThreadId worker_tid_to_notify) {
     std::cout << "[SIGNAL_WAITER KERNEL_TID:" << kernel_tid << "] Exiting." << std::endl;
 }
 
+__attribute__((noinline))
+void heavy_matrix_computation() {
+    const int size = 200; // 200x200 矩阵，足够产生明显的 cycles
+    std::vector<std::vector<double>> matrix(size, std::vector<double>(size, 1.1));
+    std::vector<std::vector<double>> result(size, std::vector<double>(size, 0.0));
+
+    // 模拟超大矩阵乘法/累加
+    for (int i = 0; i < size; ++i) {
+        for (int j = 0; j < size; ++j) {
+            for (int k = 0; k < size; ++k) {
+                result[i][j] += matrix[i][k] * matrix[k][j];
+            }
+        }
+    }
+}
+
 void worker_thread(int id) {
     // 1. 初始化线程信号信息
     gs_signal_startup_siginfo();
@@ -259,6 +275,8 @@ void worker_thread(int id) {
         std::lock_guard<std::mutex> lock(g_log_mutex);
         std::cout << "[WORKER " << id << " KERNEL_TID:" << kernel_tid << "] Executing task ..." << std::endl;
     }
+    std::default_random_engine generator(id); // 使用线程ID作为种子
+    std::uniform_int_distribution<int> distribution(1, 10); // 1到10的随机数
     // 3. 核心业务循环
     size_t cnt = 0;
     while (!g_shutdown) {
@@ -269,6 +287,9 @@ void worker_thread(int id) {
             cnt = 0;
         }
         
+        if (distribution(generator) <= 3) {
+             heavy_matrix_computation();
+        }
         std::this_thread::sleep_for(std::chrono::seconds(1));
         cnt++;
     }

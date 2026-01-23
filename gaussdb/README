@@ -1,0 +1,11 @@
+uprobe使用
+1 nm ../build/gaussdb/gaussdb | grep heavy_matrix_computation
+000000000040304b T _Z24heavy_matrix_computationv
+
+2 开启
+sudo bpftrace trace_gauss_sub2.bt
+sudo bpftrace trace_gauss_sub1.bt
+
+3 开启gaussdb
+
+4 看滚动屏幕结果吧
