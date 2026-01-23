@@ -9,3 +9,4 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -pthread")
 
 add_subdirectory(cpu)
 add_subdirectory(mem)
+add_subdirectory(gaussdb)
