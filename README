@@ -10,6 +10,10 @@ sudo sysctl -w kernel.perf_event_paranoid=-1
 perf list | grep context-switches
   context-switches OR cs                             [Software event]
 
+sudo sysctl -w kernel.kptr_restrict=0
+
+perf_event_paranoid=-1：允许采样所有内核事件。
+kptr_restrict=0：允许看到内核函数的真实地址（符号化展示
 
 ============
 
@@ -19,5 +23,15 @@ top / ps,进程画像,RES (常驻内存) vs VIRT (虚拟内存)
 pmap -x,内存布局,堆、栈、动态库各占用了多少地址空间
 valgrind,代码级检测,检测未释放的内存、非法访问
 sar -B,内核行为,缺页异常 (pgfault/s) 和扫描率
+
+============
+# 所有的 插装函数 列表
+sudo bpftrace -l > bpftrace.txt
+
+
+============
+
+
+
 
 ============
