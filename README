@@ -31,6 +31,10 @@ sudo bpftrace -l > bpftrace.txt
 
 ============
 
+1 perf 的用法
+2 numactl 的用法
+3 taskset 的用法
+参考： https://github.com/miaoZmiao/openEuler-travel.git
 
 
 
