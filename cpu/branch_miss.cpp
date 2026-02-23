@@ -22,29 +22,29 @@ int main() {
     __m256i zero = _mm256_setzero_si256();
 
     for (int tick = 0; tick < 100; ++tick) {
-        __m256i sum_vec = _mm256_setzero_si256();
+        __m256i sum_vec1 = _mm256_setzero_si256();
+        __m256i sum_vec2 = _mm256_setzero_si256();
         
-        for (int i = 0; i < size; i += 4) {
-            // 一次性加载 4 个不同的元素：[d0, d1, d2, d3]
-            __m256i val = _mm256_loadu_si256((__m256i*)&data[i]);
+        for (int i = 0; i < size; i += 8) { // 一次处理 8 个 long long
+            // --- 第一组 4 个 ---
+            __m256i val1 = _mm256_loadu_si256((__m256i*)&data[i]);
+            __m256i mask1 = _mm256_cmpgt_epi64(limit, val1);
+            __m256i neg1 = _mm256_sub_epi64(zero, val1);
+            __m256i sel1 = _mm256_blendv_epi8(neg1, val1, mask1);
+            sum_vec1 = _mm256_add_epi64(sum_vec1, sel1);
 
-            // 比较：如果 50 > val，对应位置设为全 1
-            __m256i mask = _mm256_cmpgt_epi64(limit, val);
-
-            // 取反：0 - val
-            __m256i neg_val = _mm256_sub_epi64(zero, val);
-
-            // 选择：根据 mask 选择 val 或 neg_val
-            // _mm256_blendv_epi8(a, b, mask): mask 为 1 选 b，0 选 a
-            __m256i selected = _mm256_blendv_epi8(neg_val, val, mask);
-
-            // 累加
-            sum_vec = _mm256_add_epi64(sum_vec, selected);
+            // --- 第二组 4 个 (完全独立) ---
+            __m256i val2 = _mm256_loadu_si256((__m256i*)&data[i+4]);
+            __m256i mask2 = _mm256_cmpgt_epi64(limit, val2);
+            __m256i neg2 = _mm256_sub_epi64(zero, val2);
+            __m256i sel2 = _mm256_blendv_epi8(neg2, val2, mask2);
+            sum_vec2 = _mm256_add_epi64(sum_vec2, sel2);
         }
 
-        // 将矢量寄存器中的 4 个 long long 横向累加
+        // 最后合并两个累加器
+        __m256i combined_sum = _mm256_add_epi64(sum_vec1, sum_vec2);
         long long res[4];
-        _mm256_storeu_si256((__m256i*)res, sum_vec);
+        _mm256_storeu_si256((__m256i*)res, combined_sum);
         final_sum += (res[0] + res[1] + res[2] + res[3]);
     }
 
