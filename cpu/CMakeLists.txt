@@ -6,3 +6,6 @@ add_executable(cpu_high_sys cpu_high_sys.cpp)
 add_executable(cpu_context_switch cpu_context_switch.cpp) # 新增
 add_executable(cpu_false_sharing_good cpu_false_sharing_good.cpp)
 add_executable(cpu_false_sharing_bad cpu_false_sharing_bad.cpp)
+
+add_executable(branch_miss branch_miss.cpp)
+target_compile_options(branch_miss PRIVATE -O3 -mavx2)
